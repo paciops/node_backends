@@ -1,0 +1,151 @@
+openapi: 3.0.0
+
+info:
+  description: |
+    SafeIsh API - The most (in) secure safebox
+  version: 0.0.1
+  title: Unsafebox API
+servers:
+  - url: http://localhost:8000
+
+paths:
+  /safebox:
+    post:
+      summary: Creates a new safebox
+      description: |
+        Creates a new safebox based on a non-empty name and a password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: Safebox Name
+                  type: string
+                password:
+                  description: Safebox Password
+                  type: string
+              required:
+                - name
+                - password
+              example:
+                name: Secure safebox 01
+                password: extremelySecurePassword
+      responses:
+        '200':
+          description: Safebox correctly created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: Safebox id
+                    type: string
+                required:
+                  - id
+                example:
+                  id: f626c808-648c-41fe-865d-c6062f3e0899
+        '409':
+          description: Safebox already exists
+        '422':
+          description: Malformed expected data
+        '500':
+          description: Unexpected API error
+
+  /safebox/{id}/items:
+    get:
+      summary: Retrieves the content of a safebox
+      description: |
+        Retrieves the currently stored contents in the safebox identified by the given ID
+      security:
+        - basicPassword: [ ]
+      parameters:
+        - in: path
+          name: id
+          description: Safebox Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Safebox contents correctly retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    description: Safebox items
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - items
+                example:
+                  items:
+                    - Safebox content 03
+                    - Safebox content 02
+                    - Safebox content 01
+        '401':
+          description: Specified Basic Auth does not match
+        '404':
+          description: Requested safebox does not exist
+        '422':
+          description: Malformed expected data
+        '500':
+          description: Unexpected API error
+
+    put:
+      summary: Add an items to a Safebox
+      description: |
+        Inserts new contents in the safebox identified by the given ID and with the given Basic Auth
+      security:
+        - basicPassword: [ ]
+      parameters:
+        - in: path
+          name: id
+          description: Safebox id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  description: Safebox items
+                  type: array
+                  items:
+                    type: string
+              required:
+                - items
+              example:
+                items:
+                  - Safebox content 03
+                  - Safebox content 02
+                  - Safebox content 01
+                  - New safebox content
+      responses:
+        '200':
+          description: Content correctly added to the safebox
+        '401':
+          description: Specified Basic Auth does not match
+        '404':
+          description: Requested safebox does not exist
+        '422':
+          description: Malformed expected data
+        '500':
+          description: Unexpected API error
+
+
+components:
+  securitySchemes:
+    basicPassword:
+      type: http
+      scheme: basic

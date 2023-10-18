@@ -1,0 +1,8 @@
+version: '3.0'
+
+services:
+  api:
+    image: api-image
+    container_name: rv-deliver-app-backend-api
+    ports:
+      - "8000:8000"

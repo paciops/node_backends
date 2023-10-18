@@ -1,0 +1,37 @@
+{
+  "name": "express-skeleton",
+  "version": "1.0.0",
+  "description": "Rviewer - Backend skeleton with Express",
+  "author": "Rviewer Team (help@rviewer.io)",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node-dev --respawn src/server.ts",
+    "start:local": "SKELETON_ENV=local ts-node-dev src/server.ts",
+    "start:dev": "SKELETON_ENV=develop ts-node-dev --respawn src/server.ts",
+    "start:prod": "SKELETON_ENV=production ts-node-dev --respawn src/server.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.14",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "inversify": "^6.0.1",
+    "inversify-express-utils": "^6.4.3",
+    "reflect-metadata": "^0.1.13"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.2.0",
+    "@types/node": "^18.11.2",
+    "@types/supertest": "^2.0.12",
+    "jest": "^29.2.1",
+    "mocha-junit-reporter": "^2.1.0",
+    "supertest": "^6.3.0",
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.8.4"
+  }
+}
