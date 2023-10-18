@@ -1,0 +1,364 @@
+openapi: 3.0.0
+info:
+  description: "This public service is supposed to be used to get information related to projects and manage deployments."
+  version: 1.0.0
+  title: Cloud case study - Project API
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: project
+  - name: deployment
+paths:
+  /projects:
+    get:
+      security:
+        - admin: []
+      tags:
+        - project
+      summary: List all projects
+      description: "It returns a paginated list of projects"
+      operationId: listProjects
+      parameters:
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "number"
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            Link:
+              description: "Contains the pagination data"
+              schema:
+                $ref: "#/components/schemas/Pagination"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Project"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /projects/{id}:
+    get:
+      security:
+        - admin: []
+      tags:
+        - project
+      summary: Get a project
+      description: Retrieve the project based on its id
+      operationId: getProject
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /projects/{id}/deployment:
+    post:
+      security:
+        - admin: []
+      tags:
+        - project
+      summary: Trigger a new deployment for a project
+      description: This endpoint will trigger a new deployment with the status `pending`
+      operationId: createProjectDeployment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /deployments:
+    get:
+      security:
+        - admin: []
+      tags:
+        - deployment
+      summary: List all deployments
+      description: "It returns a paginated list of deployments"
+      operationId: listDeployments
+      parameters:
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "number"
+      responses:
+        "200":
+          description: "OK"
+          headers:
+            Link:
+              description: "Contains the pagination data"
+              schema:
+                $ref: "#/components/schemas/Pagination"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Deployment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /deployments/{id}:
+    get:
+      security:
+        - admin: []
+      tags:
+        - deployment
+      summary: Get a deployment
+      description: Retrieve the deployments based on its id
+      operationId: getDepoyment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /deployments/{id}/cancel:
+    post:
+      security:
+        - admin: []
+      tags:
+        - deployment
+      summary: Cancel a deployment
+      description: Cancel an on-going deployment
+      operationId: cancelDeployment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /deployments/webhook:
+    post:
+      security:
+        - webhook: []
+      tags:
+        - deployment
+      summary: Update the status of a deployment
+      description: Webhook endpoint that is used to receive status updates for a deployment
+      operationId: deploymentStatusUpdate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: id of the deployment to update
+                status:
+                  type: "string"
+                  enum:
+                    [
+                      "pending",
+                      "building",
+                      "deploying",
+                      "failed",
+                      "cancelled",
+                      "done",
+                    ]
+              required: ["id", "status"]
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deployment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        name:
+          type: string
+        message:
+          type: string
+      required:
+        - name
+        - message
+    Project:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        hasOngoingDeployment:
+          type: "boolean"
+          default: false
+        hasLiveDeployment:
+          type: "boolean"
+          default: false
+        url:
+          type: "string"
+      required: ["id", "name", "hasOngoingDeployment", "hasLiveDeployment"]
+    Deployment:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        deployedIn:
+          type: "integer"
+        status:
+          type: "string"
+          enum:
+            ["pending", "building", "deploying", "failed", "cancelled", "done"]
+          default: "pending"
+        createdAt:
+          type: "string"
+          format: "date-time"
+      required: ["id", "status", "createdAt"]
+    Pagination:
+      type: "string"
+      example: '<http://localhost?page=1>; rel="first", <http://localhost?page=3>; rel="next", <http://localhost?page=3>; rel="last", <http://localhost?page=1>; rel="previous"'
+  securitySchemes:
+    admin:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+    webhook:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"

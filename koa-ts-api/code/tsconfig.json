@@ -1,0 +1,38 @@
+{
+  "extends": "@tsconfig/node16",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "resolveJsonModule": true,
+    "target": "es2022",
+    "types": [
+      "jest",
+      "node"
+    ],
+    "lib": [
+      "ES2022"
+    ],
+    "composite": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@knexfile": [
+        "./src/knexfile.ts"
+      ]
+    }
+  },
+  "include": [
+    "src/",
+    "../users.json",
+    "../projects.json"
+  ],
+  "exclude": [
+    "**/tests/",
+    "**/__tests__/",
+    "**/mocks/",
+    "**/__mocks__/",
+    // "**/*.test.ts"
+  ]
+}

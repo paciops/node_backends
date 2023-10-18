@@ -1,0 +1,6 @@
+**/node_modules/**
+**/build/**
+**/dist/**
+.eslintrc.js
+*.d.ts
+*.html

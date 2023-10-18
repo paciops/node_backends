@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./sql/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: db
+      DB_USERNAME: test
+      DB_PASSWORD: test
+      DB_DATABASE: test
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
