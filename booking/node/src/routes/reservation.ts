@@ -1,9 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { URLS } from '../contants';
-import { Reservation, ReservationLogic } from '../domain';
+import { Reservation } from '../domain';
 import { IdParamsSchema, ReservationBodySchema } from '../schemas';
 
-export async function reservationsRoutes(fastify: FastifyInstance, reservationService: ReservationLogic) {
+export async function reservationsRoutes(fastify: FastifyInstance) {
   fastify
     .route<{ Body: Reservation }>({
       url: `/${URLS.RESERVATIONS}`,
@@ -14,7 +14,7 @@ export async function reservationsRoutes(fastify: FastifyInstance, reservationSe
       onRequest: fastify.basicAuth,
       handler: async (request, response) => {
         const reservation = request.body;
-        const { success, reason } = await reservationService.add(reservation, request.user);
+        const { success, reason } = await fastify.reservationService.add(reservation, request.user);
         if (success) response.status(201).send({ success: true });
         else response.status(400).send({ success: false, reason });
       },
@@ -28,7 +28,7 @@ export async function reservationsRoutes(fastify: FastifyInstance, reservationSe
       onRequest: fastify.basicAuth,
       handler: async (request, response) => {
         const { id } = request.params;
-        const reservation = await reservationService.get(id);
+        const reservation = await fastify.reservationService.get(id);
         if (reservation) response.send(reservation);
         else response.status(404).send('not found');
       },

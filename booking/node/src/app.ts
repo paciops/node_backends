@@ -2,9 +2,17 @@ import { fastifyBasicAuth } from '@fastify/basic-auth';
 import { fastifyMongodb } from '@fastify/mongodb';
 import { fastify } from 'fastify';
 import { authorizationArray, authorizationMongoDB } from './auth';
+import { reservationArray, roomsArray } from './databases/inmemory';
 import { reservationMongoDB, roomsMongoDB } from './databases/mongodb';
-import { ReservationLogic, RoomLogic, User } from './domain';
+import { Reservation, ReservationLogic, Room, RoomLogic, User } from './domain';
 import { reservationsRoutes, roomsRoutes } from './routes';
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    roomService: RoomLogic;
+    reservationService: ReservationLogic;
+  }
+}
 
 export const createApp = (logger: boolean) => {
   const app = fastify({ logger });
@@ -27,28 +35,25 @@ export const createApp = (logger: boolean) => {
       app.register(fastifyBasicAuth, { validate: authorizationArray(users) });
       return appCreator;
     },
-    withRoomLogic(roomLogic: RoomLogic) {
-      app.register((app) => roomsRoutes(app, roomLogic));
+    withRoomService(roomLogic: RoomLogic) {
+      app.decorate('roomService', roomLogic).register(roomsRoutes);
       return appCreator;
+    },
+    withRoomArray(rooms: Room[] = []) {
+      return appCreator.withRoomService(roomsArray(rooms));
     },
     withRoomMongoDB() {
-      roomsDB = roomsMongoDB(app);
-      app.register((app) => roomsRoutes(app, roomsDB!));
+      return appCreator.withRoomService(roomsMongoDB(app));
+    },
+    withReservationService(reservationLogic: ReservationLogic) {
+      app.decorate('reservationService', reservationLogic).register(reservationsRoutes);
       return appCreator;
     },
-    withRoomArray(roomLogic: RoomLogic) {
-      app.register((app) => roomsRoutes(app, roomLogic));
-      return appCreator;
+    withReservationMongoDB() {
+      return appCreator.withReservationService(reservationMongoDB(app));
     },
-    withReservationMongoDB(roomsLogic?: RoomLogic) {
-      const localRoomDb = roomsLogic || roomsDB;
-      if (!localRoomDb) throw new Error('rooms logic is undefined');
-      app.register((app) => reservationsRoutes(app, reservationMongoDB(app, localRoomDb)));
-      return appCreator;
-    },
-    withReservationArray(reservationLogic: ReservationLogic) {
-      app.register((app) => reservationsRoutes(app, reservationLogic));
-      return appCreator;
+    withReservationArray(reservations: Reservation[] = []) {
+      return appCreator.withReservationService(reservationArray(reservations, app.roomService));
     },
     app() {
       return app;

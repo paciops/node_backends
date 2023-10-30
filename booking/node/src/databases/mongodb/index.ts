@@ -47,16 +47,15 @@ export const roomsMongoDB = (fastify: FastifyInstance, collectionName = 'rooms')
   };
 };
 
-export const reservationMongoDB = (
-  fastify: FastifyInstance,
-  roomService: RoomLogic,
-  collectionName = 'reservations'
-): ReservationLogic => {
+export const reservationMongoDB = (fastify: FastifyInstance, collectionName = 'reservations'): ReservationLogic => {
   return {
     async add(reservation, options) {
       const { id, roomId, checkInDate, checkOutDate } = reservation;
       const { username, password } = options ?? {};
-      const existingRoom = await roomService.get(roomId, { username, password });
+      const existingRoom = await fastify.roomService.get(roomId, {
+        username,
+        password,
+      });
       if (!existingRoom) return { success: false, reason: 'room does not exist' };
 
       const collection = getCollection<Reservation>(fastify, collectionName);
@@ -92,7 +91,10 @@ export const reservationMongoDB = (
         if (overlappingReservation) {
           await session.abortTransaction();
           session.endSession();
-          return { success: false, reason: 'room already booked in this period' };
+          return {
+            success: false,
+            reason: 'room already booked in this period',
+          };
         }
 
         await collection.insertOne(reservation, { session });

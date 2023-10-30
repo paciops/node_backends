@@ -1,9 +1,9 @@
 import { FastifyInstance } from 'fastify';
 import { URLS } from '../contants';
-import { Room, RoomLogic } from '../domain/room';
+import { Room } from '../domain/room';
 import { IdParamsSchema, RoomBodySchema } from '../schemas';
 
-export async function roomsRoutes(fastify: FastifyInstance, roomService: RoomLogic) {
+export async function roomsRoutes(fastify: FastifyInstance) {
   fastify
     .route<{ Body: Room }>({
       url: `/${URLS.ROOMS}`,
@@ -13,7 +13,7 @@ export async function roomsRoutes(fastify: FastifyInstance, roomService: RoomLog
       },
       onRequest: fastify.basicAuth,
       handler: async (request, response) => {
-        const result = await roomService.add(request.body);
+        const result = await fastify.roomService.add(request.body);
         if (result) response.status(201).send({ success: true });
         else response.status(400).send({ success: false });
       },
@@ -26,7 +26,7 @@ export async function roomsRoutes(fastify: FastifyInstance, roomService: RoomLog
       },
       onRequest: fastify.basicAuth,
       handler: async (request, response) => {
-        const room = await roomService.get(request.params.id);
+        const room = await fastify.roomService.get(request.params.id);
         if (room) response.send(room);
         else response.status(404).send('not found');
       },

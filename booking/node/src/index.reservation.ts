@@ -17,7 +17,8 @@ if (!isValidURL(roomAPIEndpoint)) throw new Error(`${roomAPIEndpoint} is not a v
 const app = createApp(true)
   .withMongoDB(MONGODB_URL, MONGODB_DATABASE, MONGODB_REPLICA_SET)
   .withMongoDBAuth()
-  .withReservationMongoDB(roomHttpService(roomAPIEndpoint))
+  .withRoomService(roomHttpService(roomAPIEndpoint))
+  .withReservationMongoDB()
   .app();
 
 app
