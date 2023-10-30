@@ -1,0 +1,293 @@
+openapi: 3.0.0
+info:
+  title: Booking
+  version: 1.0.0
+  description: API for booking system
+servers:
+  - url: http://localhost:8080
+security:
+  - basicAuth: []
+
+paths:
+  /camere:
+    post:
+      summary: Create a new room
+      security:
+        - basicAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomBodySchema'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+  /camere/{id}:
+    get:
+      summary: Get a room by ID
+      security:
+        - basicAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Room'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+  /prenotazioni:
+    post:
+      summary: Create a new reservation
+      security:
+        - basicAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationBodySchema'
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  reason:
+                    type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+  /prenotazioni/{id}:
+    get:
+      summary: Get a reservation by ID
+      security:
+        - basicAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerError'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+components:
+  schemas:
+    Room:
+      type: object
+      properties:
+        id:
+          type: number
+        beds:
+          type: number
+      required:
+        - id
+        - beds
+
+    RoomBodySchema:
+      type: object
+      properties:
+        id:
+          type: number
+        beds:
+          type: number
+      required:
+        - id
+        - beds
+
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: number
+        roomId:
+          type: number
+        guestName:
+          type: string
+        checkInDate:
+          type: string
+          format: date-time
+        checkOutDate:
+          type: string
+          format: date-time
+        numberOfGuests:
+          type: number
+        contactInformation:
+          $ref: '#/components/schemas/ContactInformation'
+        specialRequests:
+          type: string
+      required:
+        - id
+        - roomId
+        - guestName
+        - checkInDate
+        - checkOutDate
+        - numberOfGuests
+        - contactInformation
+        - specialRequests
+
+    ContactInformation:
+      type: object
+      properties:
+        phoneNumber:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+        - phoneNumber
+        - email
+
+    ServerError:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        error:
+          type: string
+        message:
+          type: string
+
+    UnauthorizedResponse:
+      type: object
+      properties:
+        statusCode:
+          type: number
+        error:
+          type: string
+        message:
+          type: string
+
+    ReservationBodySchema:
+      type: object
+      properties:
+        id:
+          type: number
+        roomId:
+          type: number
+        guestName:
+          type: string
+        checkInDate:
+          type: string
+          format: date-time
+        checkOutDate:
+          type: string
+          format: date-time
+        numberOfGuests:
+          type: number
+        contactInformation:
+          $ref: '#/components/schemas/ContactInformation'
+        specialRequests:
+          type: string
+      required:
+        - id
+        - roomId
+        - guestName
+        - checkInDate
+        - checkOutDate
+        - numberOfGuests
+        - contactInformation
+        - specialRequests
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
