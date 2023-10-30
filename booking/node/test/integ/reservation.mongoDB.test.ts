@@ -1,9 +1,6 @@
 import { after, afterEach, before, describe } from 'node:test';
 import { createApp } from '../../src/app';
 import { MONGODB_DATABASE, MONGODB_REPLICA_SET, MONGODB_URL } from '../../src/contants';
-import { roomsArray } from '../../src/databases/inmemory';
-import { reservationMongoDB } from '../../src/databases/mongodb';
-import { reservationsRoutes } from '../../src/routes';
 import {
   DEFAUTL_ARRIVAL_DATE,
   DEFAUTL_DEPARTURE_DATE,
@@ -28,9 +25,12 @@ describe('reservation tests with MongoDB', () => {
       numberOfGuests: 2,
       specialRequests: '',
     },
-    app = createApp(false).withMongoDB(MONGODB_URL, MONGODB_DATABASE, MONGODB_REPLICA_SET).withMongoDBAuth().app(),
-    reservationDb = reservationMongoDB(app, roomsArray([room]));
-  app.register((app) => reservationsRoutes(app, reservationDb));
+    app = createApp(false)
+      .withMongoDB(MONGODB_URL, MONGODB_DATABASE, MONGODB_REPLICA_SET)
+      .withMongoDBAuth()
+      .withRoomArray([room])
+      .withReservationMongoDB()
+      .app();
 
   before(async () => {
     await app.ready();
@@ -38,7 +38,7 @@ describe('reservation tests with MongoDB', () => {
   });
 
   afterEach(async () => {
-    await reservationDb.reset();
+    await app.reservationService.reset();
   });
 
   after(async () => {

@@ -1,6 +1,5 @@
 import { after, afterEach, before, describe } from 'node:test';
 import { createApp } from '../../src/app';
-import { reservationArray, roomsArray } from '../../src/databases/inmemory';
 import { DEFAUTL_ARRIVAL_DATE, DEFAUTL_DEPARTURE_DATE, reservationTests } from '../utils';
 
 describe('reservation tests with in memory array', () => {
@@ -19,20 +18,18 @@ describe('reservation tests with in memory array', () => {
       numberOfGuests: 2,
       specialRequests: '',
     },
-    roomDb = roomsArray([room]),
-    reservationDb = reservationArray([], roomDb),
-    app = createApp(false).withArrayAuth([user]).withReservationArray(reservationDb).app();
+    app = createApp(false).withArrayAuth([user]).withRoomArray([room]).withReservationArray().app();
 
   before(async () => {
     await app.ready();
   });
 
   afterEach(() => {
-    reservationDb.reset();
+    app.reservationService.reset();
   });
 
   after(() => {
-    roomDb.reset();
+    app.roomService.reset();
     app.close();
   });
 

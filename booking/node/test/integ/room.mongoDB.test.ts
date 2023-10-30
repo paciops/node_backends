@@ -1,15 +1,15 @@
 import { after, afterEach, before, describe } from 'node:test';
 import { createApp } from '../../src/app';
 import { MONGODB_DATABASE, MONGODB_REPLICA_SET, MONGODB_URL } from '../../src/contants';
-import { roomsMongoDB } from '../../src/databases/mongodb';
-import { roomsRoutes } from '../../src/routes';
 import { createMongoDBUser, deleteMongoDBUser, roomTests } from '../utils';
 
 describe('room tests with MongoDB', () => {
-  const app = createApp(false).withMongoDB(MONGODB_URL, MONGODB_DATABASE, MONGODB_REPLICA_SET).withMongoDBAuth().app(),
-    user = { username: 'user', password: 'password' },
-    roomDb = roomsMongoDB(app);
-  app.register((app) => roomsRoutes(app, roomDb));
+  const user = { username: 'user', password: 'password' },
+    app = createApp(false)
+      .withMongoDB(MONGODB_URL, MONGODB_DATABASE, MONGODB_REPLICA_SET)
+      .withMongoDBAuth()
+      .withRoomMongoDB()
+      .app();
 
   before(async () => {
     await app.ready();
@@ -17,7 +17,7 @@ describe('room tests with MongoDB', () => {
   });
 
   afterEach(async () => {
-    await roomDb.reset();
+    await app.roomService.reset();
   });
 
   after(async () => {
